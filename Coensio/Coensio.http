@@ -1,0 +1,6 @@
+@Coensio_HostAddress = http://localhost:5105
+
+GET {{Coensio_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

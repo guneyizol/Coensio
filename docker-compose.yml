@@ -1,0 +1,67 @@
+services:
+  coensio:
+    build:
+      context: .
+      dockerfile: Coensio/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+        ASPNETCORE_ENVIRONMENT: Development
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        RABBITMQ_HOST: rabbitmq
+        RABBITMQ_USERNAME: guest
+        RABBITMQ_PASSWORD: guest
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  consumer:
+    build:
+      context: .
+      dockerfile: Coensio.Consumer/Dockerfile
+  redis:
+    image: valkey/valkey:7
+    restart: always
+    healthcheck:
+     test: ["CMD", "redis-cli","ping"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+  db:
+    image: postgres:16
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_DB: coensio
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  rabbitmq:
+    image: masstransit/rabbitmq
+    restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq/
+      - rabbitmqlog:/var/log/rabbitmq/
+volumes:
+  pgdata:
+  redis:
+  rabbitmqdata:
+  rabbitmqlog:  
