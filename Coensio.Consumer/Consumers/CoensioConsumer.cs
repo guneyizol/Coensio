@@ -21,7 +21,7 @@ namespace Coensio.Consumer.Consumers
             if (test is not null)
             {
                 var codingQuestionAnswers = dbContext.CodingQuestionUserAnswers.Where(a => a.TestId == id).ToList();
-                var freeTextQuestionAnswers = dbContext.FreeTextQuestionUserAnswers.Where(a => a.TestId != id).ToList();
+                var freeTextQuestionAnswers = dbContext.FreeTextQuestionUserAnswers.Where(a => a.TestId == id).ToList();
                 var multipleChoiceQuestionAnswers = dbContext.McqUserAnswers.Where(a => a.TestId == id).ToList();
 
                 int sumCqa = codingQuestionAnswers.Select(a => a.Score).Sum();
